@@ -40,4 +40,4 @@ jobs:
       - name: Running DAST Scan
         uses: zaproxy/action-baseline@v0.9.0
         with:
-          target: 'http/localhost:5000'
+          target: 'http://localhost:5000'
