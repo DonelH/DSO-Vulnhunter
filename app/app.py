@@ -2,6 +2,8 @@ from flask import Flask, request, render_template_string
 
 app = Flask(__name__)
 
+# DB_PASSWORD=12ui34hih12i3uh4oasdaw
+
 # SQLi Ex. (OWASP A03)
 @app.route('/login', methods=['GET','POST'])
 def login():
