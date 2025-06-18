@@ -40,7 +40,21 @@ jobs:
     name: OWASP ZAP - DAST Scanning
     runs-on: ubuntu-latest
     steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        run: |
+          docker-compose up --build -d
+          sleep 20
+
       - name: Running DAST Scan
-        uses: zaproxy/action-baseline@v0.9.0
+        run: |
+          docker-compose run zap
+          docker cp $(docker ps -aqf "name=zap"):/zap/zap-report.html ./zap-report.html
+
+      - name: Upload Zap Report
+        uses: actions/upload-artifact@v3
         with:
-          target: 'http://localhost:5000'
+          name: zap-report
+          path: ./zap-report.html

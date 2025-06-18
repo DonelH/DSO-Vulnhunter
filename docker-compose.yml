@@ -1,0 +1,19 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    networks:
+      - zap-net
+  
+  zap:
+    image: owasp/zap2docker-stable
+    depends_on:
+      - app
+    command: zap-baseline.py -t http://app:5000 -r zap-report.html
+    networks:
+      - zap-net
+
+networks:
+  zap-net:
