@@ -8,7 +8,7 @@ services:
       - zap-net
   
   zap:
-    image: owasp/zap2docker-stable
+    image: ghcr.io/zaproxy/zap-full-scan
     depends_on:
       - app
     command: zap-baseline.py -t http://app:5000 -r zap-report.html
