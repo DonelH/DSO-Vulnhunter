@@ -5,5 +5,5 @@ COPY . /app/
 
 RUN pip install -r requirements.txt
 
-EXPOSE 500
+EXPOSE 5000
 CMD ["python", "app/app.py"]
