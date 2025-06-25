@@ -3,10 +3,12 @@ import sqlite3
 import requests
 import bcrypt
 import json
+import os
 
 import hashlib
 
 app = Flask(__name__)
+os.environ["API_KEY"] = "1234567890"
 app.secret_key = "test-key-secret"
 DATABASE = 'lab.db'
 
@@ -132,6 +134,36 @@ def reset_any_password():
             <input type="submit" value="Reset Password">
         </form>
     '''
+
+'''#### A05 ####'''
+
+@app.route("/default-login", methods=["GET", "POST"])
+def default_login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username == "admin" and password == "admin":
+            session["user"] = "admin"
+            return redirect("/config")
+        else:
+            return "Invalid credentials", 403
+    return '''
+        <form method="post">
+            <h2>Default Admin Login</h2>
+            Username: <input name="username"><br>
+            Password: <input name="password" type="password"><br>
+            <input type="submit">
+        </form>
+'''
+
+@app.route("/config")
+def config_exposure():
+    return dict(os.environ)
+
+@app.route("/crash")
+def crash():
+    return 1 / 0
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
