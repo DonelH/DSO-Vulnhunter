@@ -91,7 +91,7 @@ jobs:
   comment_semgrep:
     name: GH Comments Semgrep Findings
     needs: sast
-    if: github.event_name == 'pull_request'
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
