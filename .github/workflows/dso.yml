@@ -18,7 +18,7 @@ jobs:
       - name: Upload Semgrep report
         uses: actions/upload-artifact@v4
         with:
-          name: semgrep-report
+          name: semgrep-results
           path: semgrep.json
   secrets:
     name: Gitleaks - Secrets Detection
