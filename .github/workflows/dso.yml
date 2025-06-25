@@ -105,8 +105,13 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const core = require('@actions/core');
             const results = JSON.parse(fs.readFileSync('semgrep.json', 'utf8'));
 
+            if (!context.issue || !context.issue.number) {
+              core.setFailed("No PR context available.");
+              return;
+            }
             if (!results.results || results.results.length === 0) {
               return github.rest.isses.createComment({
                 issue_number: context.issue.number,
