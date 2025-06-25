@@ -46,6 +46,12 @@ jobs:
         with:
           name: semgrep-results
           path: semgrep.json
+
+      - name: Start Pushgateway
+        run: |
+          docker run -d -p 9091:9091 prom/pushgateway
+          sleep 10  # give it time to start
+          
       - name: Convert Semgrep to Prom metrics
         run: |
           pip install prometheus_client
