@@ -9,12 +9,11 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v3
-      - uses: returntocorp/semgrep-action@v1
-        with:
-          config: p/owasp-top-ten
-          generateSarif: true
-          uploadSarif: true
-          json: true
+      - name: Run semgrep and save report
+        run: |
+          pip install semgrep
+          semgrep --config p/owasp-top-ten --json > semgrep.json
+          
       - name: Upload Semgrep report
         uses: actions/upload-artifact@v4
         with:
