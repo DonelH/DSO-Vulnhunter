@@ -91,7 +91,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
-          path: ./report_html.html
+          path: ./report-html.html
 
   comment_semgrep:
     name: GH Comments Semgrep Findings
