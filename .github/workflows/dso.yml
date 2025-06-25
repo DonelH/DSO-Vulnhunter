@@ -11,6 +11,13 @@ jobs:
       - uses: returntocorp/semgrep-action@v1
         with:
           config: p/owasp-top-ten
+          generateSarif: true
+          auditOn: error
+      - name: Upload Semgrep report
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-report
+          path: semgrep.json
   secrets:
     name: Gitleaks - Secrets Detection
     runs-on: ubuntu-latest
@@ -19,6 +26,11 @@ jobs:
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
+      - name: Upload Gitleaks report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks_results
+          path: gitleaks_results.json
   containers:
     name: Trivy - Container Scanning
     runs-on: ubuntu-latest
@@ -31,11 +43,23 @@ jobs:
         with:
           image-ref: dso-vulnhunter:latest
           format: table
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.txt
   iac:
     name: Checkov - IAC Scanning
     runs-on: ubuntu-latest
     steps:
       - uses: bridgecrewio/checkov-action@master
+      - name: Upload Checkov report
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkov-report.json
+          path: checkov-report.json
   zap:
     name: OWASP ZAP - DAST Scanning
     runs-on: ubuntu-latest
@@ -61,3 +85,46 @@ jobs:
         with:
           name: zap-report
           path: ./report_html.html
+
+  comment_semgrep:
+    name: GH Comments Semgrep Findings
+    needs: sast
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download semgrep results
+        uses: actions/download-artifact@v4
+        with:
+          name: semgrep-results
+
+      - name: Post OWASP Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('semgrep.json', 'utf8'));
+
+            if (!results.results || results.results.length === 0) {
+              return github.rest.isses.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: "No Semgrep issues found for OWASP Top 10."});
+            }
+            
+            let summary = " Semgrep OWASP Findings \n\n";
+            for (const finding of results.results) {
+              const rule = finding.check_id || "Unknown";
+              const owaspTag = finding.metadata && finding.metadata.owasp ? finding.metadata.owasp.join(', ') : "Unlabeled";
+              const severity = finding.extra?.severiry || "Info";
+              summary += `- [${severity}] \`${rule}\` - **${owaspTag}**\n - File: \`${finding.path}:${finding.start.line}\`\n\n`;
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
