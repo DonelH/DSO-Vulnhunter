@@ -31,6 +31,7 @@ jobs:
             sleep 10  # Give Pushgateway time to start
   sast:
     name: Semgrep - Static Code Analysis
+    needs: metrics
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
