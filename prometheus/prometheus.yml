@@ -1,0 +1,5 @@
+scrape_configs:
+  - job_name: 'vulnhunter-ci'
+    honor_labels: true
+    static_configs:
+      - targets: ['pushgateway:9091']

@@ -19,6 +19,12 @@ jobs:
         with:
           name: semgrep-results
           path: semgrep.json
+      - name: Convert Semgrep to Prom metrics
+        run: |
+          pip install prometheus_client
+          python scripts/semgrep_to_prom.py
+      - name: Push metrics to Prom
+        run: echo "Pushed via Python script"
   secrets:
     name: Gitleaks - Secrets Detection
     runs-on: ubuntu-latest
